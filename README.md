@@ -1,2 +1,6 @@
 # stroke-tissue-prediction
 Tissue Fate Prediction in Acute Stroke based on MRI
+
+Stroke is one of the leading cause of death and a major cause of long term disabilities worldwide. While prevention research identifies factors and specific drugs that may lower the risk of a future stroke, the treatment of ischemic stroke patients aims at maximizing the recovery of brain tissue at risk. It is typically done by recanalization of the occluded blood vessel; either mechanically or using a clot-busting drug. Prediction of tissue outcome is essential to the clinical decision-making process in acute ischemic stroke and would help to refine therapeutic strategies.
+ 
+Recent studies based on Machine Learning have outperformed standard approaches and demonstrated great promise in predicting lesion growth. This project aims at comparing the accuracy of state-of-the-art machine learning methods including Deep Learning architectures, LSTM, Decision Trees, and Kernel Spectral Regression. The input will be based on source perfusion weighted MRI obtained after admission of the stroke patient, and the target output will correspond to the lesion annotated on FLAIR images by a Neurologist 3 days after admission.
