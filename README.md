@@ -1,32 +1,26 @@
 stroke-tissue-prediction
 ===========================
----------------------------
 
 Stroke Tissue Prediction is a project for UCLA's Spring '19 CS 168 class, taught by Professor Fabien Scalzo. The goal is to use various machine learning techniques to analyze a set of scans of a brain, both pre and post-stroke, and determine the likelihood of developing lesions. Specifically, we want compare the accuracy of various algorithmic approaches.
 
 ## Prerequisites
----
 
    - Python 3.7+
    - scikit-learn
 
 ## Getting Started
----
 
 1. TODO: ya know, make this.
 
 ## Usage
----
 
 1. TODO: work on this.
 
 ## Cleanup
----
 
 1. TODO: work on this.
 
 ## Extensive Description
----
 
 #### Tissue Fate Prediction in Acute Stroke based on MRI
 
