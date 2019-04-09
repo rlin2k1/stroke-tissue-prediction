@@ -5,12 +5,23 @@ Stroke Tissue Prediction is a project for UCLA's Spring '19 CS 168 class, taught
 
 ## Prerequisites
 
-   - Python 3.7+
-   - scikit-learn
+These are needed before running the steps in `Getting Started`.
+
+   - Python 3.7+ [(installation instructions)](https://docs.python-guide.org/starting/install3/osx/)
+
+## Dependencies
+
+These are installed via the bootstrapping process described in `Getting Started`.
+
+   - numpy 1.16.2
+   - scikit-learn 0.20.3
+   - scipy 1.2.1
 
 ## Getting Started
 
-1. TODO: ya know, make this.
+1. Run `./bootstrap.sh` to install necessary dependencies.
+2. Run `source build/bin/activate` to get inside the virtualenv.
+3. Run `deactivate` to close the virtualenv.
 
 ## Usage
 
@@ -18,7 +29,7 @@ Stroke Tissue Prediction is a project for UCLA's Spring '19 CS 168 class, taught
 
 ## Cleanup
 
-1. TODO: work on this.
+1. Run `./bootstrap.sh -c` to blow away the virtualenv, and clean its dependent files.
 
 ## Extensive Description
 
