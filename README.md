@@ -7,15 +7,18 @@ Stroke Tissue Prediction is a project for UCLA's Spring '19 CS 168 class, taught
 
 These are needed before running the steps in `Getting Started`.
 
-   - Python 3.7+ [(installation instructions)](https://docs.python-guide.org/starting/install3/osx/)
+   - Python 3.7+ [(macOS installation)](https://docs.python-guide.org/starting/install3/osx/) [(Linux installation)](https://docs.python-guide.org/starting/install3/linux/)
 
 ## Dependencies
 
 These are installed via the bootstrapping process described in `Getting Started`.
 
+   - nibabel 2.4.0
    - numpy 1.16.2
+   - pydicom 1.2.2
    - scikit-learn 0.20.3
    - scipy 1.2.1
+   - six 1.12.0
 
 ## Getting Started
 
