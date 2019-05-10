@@ -10,8 +10,8 @@
 ##############################################
 # CONSTANTS
 ##############################################
-readonly PYTHON=python3
-readonly PIP=pip3
+PYTHON=python3 # needs to not be readonly for the --anaconda flag
+PIP=pip3 # see above
 readonly REQUIRED_PKGS=.bootstrap/requirements.txt
 readonly USAGE_MSG="~~~\n\
 Sets up the needed python virtualenv, or destroys it.\n\
@@ -21,7 +21,8 @@ Usage: ./bootstrap.sh [options]\n\
 ~~~\n"
 readonly VALID_OPTS="Valid options:\n\
 \t1) -c|--clean: blow away the virtualenv and clean/remove associated files.\n\
-\t2) -u|--usage: display this usage message.\n\
+\t2) -a|--anaconda: run bootstrap installation with the assumption that the system python installation is anaconda's.\n\
+\t3) -u|--usage: display this usage message.\n\
 \n"
 
 ##############################################
@@ -38,6 +39,22 @@ case $key in
   -c|--clean)
     CLEAN=true
     shift # past argument
+  ;;
+  -a|--anaconda)
+    if [[ $(which python | grep -F anaconda) != "" ]]; then
+      echo "Accounting for anaconda python installation." 
+      PYTHON=python
+      PIP=pip
+      printf "Note that \`which python\` yields: "
+      which python
+    else
+      echo "ERROR: \`which python\` does not yield an anaconda-based python installation."
+      printf "Note that \`which python\` yields: "
+      which python
+      echo "Please do not use the -a|--anaconda option if your default python is not anaconda based."
+      exit 1
+    fi
+    shift
   ;;
   -u|--usage)
     printf "$USAGE_MSG"
@@ -76,6 +93,15 @@ buildVirtualEnv ()
   pip install -r $REQUIRED_PKGS || return 1
   deactivate || return 1
   return 0
+}
+
+printErrorFixSuggestion ()
+{
+  if [[ $(which python | grep -F anaconda) != "" ]]; then
+    echo "It appears your default python is anaconda-based. Try \`./bootstrap.sh --clean && ./bootstrap.sh --anaconda\`."
+  else
+    echo "Try \`./bootstrap.sh --clean\`, and then re-run bootstrap."
+  fi
 }
 
 ##############################################
@@ -125,7 +151,8 @@ main ()
       printf "ERROR: virtualenv not installed, acquiring...\n\n"
       $PYTHON -m $PIP install --user virtualenv
       rc=$?; if [[ $rc != 0 ]]; then 
-        printf "ERROR: virtualenv failed to install. Try cleaning (\`./bootstrap.sh -c\`) and re-bootstrapping.\n"
+        echo "ERROR: virtualenv failed to install."
+        printErrorFixSuggestion
         exit $rc
       else
         printf "\n\t✓ virtualenv acquired successfully\n\n"
@@ -141,7 +168,8 @@ main ()
       echo "Run \`source build/bin/activate\` from the root of the repo to engage the virtualenv."
     else
       echo "---"
-      echo "ERROR: failed to build virtualenv. Try \`./bootstrap.sh --clean\`, and then re-run bootstrap."
+      echo "ERROR: failed to build virtualenv."
+      printErrorFixSuggestion
       exit 1
     fi
   fi

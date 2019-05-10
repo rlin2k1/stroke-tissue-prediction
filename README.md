@@ -23,6 +23,7 @@ These are installed via the bootstrapping process described in `Getting Started`
 ## Getting Started
 
 1. Run `./bootstrap.sh` to install necessary dependencies.
+   - NOTE: if your default python is managed by anaconda (i.e., `which python` returns something like `/usr/local/anaconda3/bin/python`) you MUST do your initial bootstrap using the anaconda option: `./bootstrap.sh --anaconda`.
 2. Run `source build/bin/activate` to get inside the virtualenv.
 3. Run `deactivate` to close the virtualenv.
 
