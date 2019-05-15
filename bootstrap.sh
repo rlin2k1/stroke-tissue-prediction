@@ -22,7 +22,8 @@ Usage: ./bootstrap.sh [options]\n\
 readonly VALID_OPTS="Valid options:\n\
 \t1) -c|--clean: blow away the virtualenv and clean/remove associated files.\n\
 \t2) -a|--anaconda: run bootstrap installation with the assumption that the system python installation is anaconda's.\n\
-\t3) -u|--usage: display this usage message.\n\
+\t3) -m|--macosmatplot: adjust specified backend for matplotlib to work with macOS via a dot-file modification.
+\t4) -u|--usage: display this usage message.\n\
 \n"
 
 ##############################################
@@ -53,6 +54,16 @@ case $key in
       which python
       echo "Please do not use the -a|--anaconda option if your default python is not anaconda based."
       exit 1
+    fi
+    shift
+  ;;
+  -m|--macosmatplot)
+    if [[ $(cat ~/.matplotlib/matplotlibrc | grep "backend: TkAgg") == "" ]]; then
+      echo "Adjusting ~/.matplotlib/matplotlibrc for macOS backend."
+      echo "backend: TkAgg" >> ~/.matplotlib/matplotlibrc
+      echo "Adjustment successful."
+    else
+      echo "~/.matplotlib/matplotlibrc already adjusted for macOS backend. Ignoring -m flag."
     fi
     shift
   ;;
@@ -158,7 +169,6 @@ main ()
         printf "\n\t✓ virtualenv acquired successfully\n\n"
       fi
     fi
-
 
     echo "Building virtualenv..."
     echo "---"
