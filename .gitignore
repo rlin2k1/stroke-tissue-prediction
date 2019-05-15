@@ -4,6 +4,9 @@
 # macOS-specific
 .DS_Store
 
+# DICOM files
+*.dcm
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
