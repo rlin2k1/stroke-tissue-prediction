@@ -21,8 +21,9 @@ def map_pixel_data(pixels, ignore_zero_intensity = True):
     sto = {}
     for x in range(len(pixels)):
         for y in range(len(pixels[x])):
-            if pixels[x][y] != 0:
-                sto[(x, y)] = pixels[x][y]
+            if ignore_zero_intensity and pixels[x][y] == 0: 
+                continue
+            sto[(x, y)] = pixels[x][y]
     return sto
 
 ds = pydicom.dcmread("IM-0008-0024.dcm")
