@@ -7,11 +7,8 @@
 #                David Macaraeg <dmacaraeg@g.ucla.edu>
 # :: Creation Date: 15 May 2019
 
-<<<<<<< HEAD
 import pydicom
 import numpy as np
-=======
->>>>>>> 9403644d42cd02653a7b12c0a44cc2fda66c35c3
 from random import sample
 
 def random_sample_pixel_map(pixel_map, number_of_samples):
@@ -45,5 +42,5 @@ def map_pixel_data(pixels, ignore_zero_intensity = True):
 
 import os
 def three_dimensional_representation(folder_name):
-    
     for filename in os.listdir(folder_name):
+        pass
