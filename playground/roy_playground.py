@@ -1,6 +1,8 @@
 import os
 import pydicom
 from pydicom.data import get_testdata_files
+import matplotlib 
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import time
 
