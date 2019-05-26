@@ -7,15 +7,14 @@
 #                David Macaraeg <dmacaraeg@g.ucla.edu>
 # :: Creation Date: 15 May 2019
 
-import pydicom
-import numpy as np
+
+import sys, os
 from random import sample
 from collections import defaultdict
-import pydicom
-import sys, os
+from operator import itemgetter
 
-_INSTANCE_NUMBER = (0x0020, 0x0013)
-_ACQUISITION_NUMBER = (0x0020, 0x0012)
+import pydicom
+
 
 def random_sample_pixel_map(pixel_map, number_of_samples):
     """
@@ -29,22 +28,42 @@ def random_sample_pixel_map(pixel_map, number_of_samples):
     keys = sample(pixel_map.keys(), number_of_samples)
     return {k: v for (k, v) in pixel_map.items() if k in keys}
 
-def parse_dcm_data(list_of_files):
+
+def _sort_and_clean_slice_dict(slice_dict):
+    """
+    Sorts the nested pixel arrays within {slice_id: {coord: pixel_arr}}-type dictionaries.
+    Then use dictionary comprehension to remove the time data from pixel_arrs, turning [(time, val), (time, val)] into [val, val]
+
+    :param dict slice_dict: a dict of the form {slice_id: {coord: pixel_arr}}.
+    :return: the same dictionary, but with the (time, val) tuples in pixel_arrs replaced just by their values, after being sorted via time.
+    :rtpye: dict
+    """
+    for coordinate_dict in slice_dict.values():
+        for pixel_arr in coordinate_dict.values():
+            pixel_arr.sort(key=itemgetter(0))
+    return {slice_id: {coord: [i_val for (_, i_val) in intensity_arr] for (coord, intensity_arr) in coord_dict.items()} for (slice_id, coord_dict) in slice_dict.items()}
+
+
+def parse_dcm_data(directory_name):
     """
     Parses all DCMs within list of files, creating a mapping between patient_id, pixel coordinates, and pixel intensity over time.
 
-    :param list list_of_files: a list of files to examine, likely generated with os.listdir.
-    :return: a dictionary in the following form: {k: patient_id v: {k: pixel_coordinate v: array_of_pixel_values_over_time}}
+    :param directory_name: the name of a directory with DCM files to examine.
+    :return: a dictionary in the following form: {slice_id: {pixel_coordinate: array_of_pixel_values_over_time}}
+    :rtpye: dict
     """
-    patient_dict = defaultdict(dict)
-    for file in os.listdir(list_of_files):
+    slice_dict = {}
+    for file in os.listdir(directory_name):
         if file.endswith(".dcm"):
-            dcm = pydicom.dcmread(file)
-            patient_dict[dcm.PatientID] = 0
-            pixels = dcm.pixel_array
-            d = ip.map_pixel_data(pixels)
+            dcm = pydicom.dcmread(os.path.join(directory_name, file))
+            if dcm.SliceLocation in slice_dict.keys():
+                map_pixel_data(dcm.pixel_array, dcm.InstanceCreationTime, slice_dict[dcm.SliceLocation])
+            else:
+                slice_dict[dcm.SliceLocation] = map_pixel_data(dcm.pixel_array, dcm.InstanceCreationTime)
+    return _sort_and_clean_slice_dict(slice_dict)
 
-def map_pixel_data(pixels, ignore_zero_intensity = True):
+
+def map_pixel_data(pixels, creation_time, slice_data = None, ignore_zero_intensity = True):
     """
     Creates a dictionary of pixel coordinates to pixel values.
 
@@ -53,17 +72,19 @@ def map_pixel_data(pixels, ignore_zero_intensity = True):
     :return: a dictionary of image coordinates as the key, matched with pixel values as the value.
     :rtype: dict
     """
-    sto = defaultdict(list)
-    for x in range(len(pixels)):
+    if slice_data is None: slice_data = defaultdict(list)
+    pixel_sz_x = len(pixels)
+    for x in range(pixel_sz_x):
         for y in range(len(pixels[x])):
             if ignore_zero_intensity and pixels[x][y] == 0: 
                 continue
-            sto[(x, y)].append(pixels[x][y])
-    return sto
+            slice_data[(x, y)].append((creation_time, pixels[x][y]))
+    return slice_data
+
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         print("Processing DCMs in directory: {}".format(sys.argv[1]))
-        parse_dcm_data(os.listdir(sys.argv[1]))
+        print(parse_dcm_data(str(sys.argv[1])))
     else:
-        sys.exit("USAGE: python3 main.py <directory with DCM files>")
+        sys.exit("USAGE: python image_processing.py <directory with DCM files>")

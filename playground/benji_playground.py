@@ -36,3 +36,8 @@ for file in os.listdir("./ep2d_perf_35"):
         print("Series Number: {}".format(dcm.SeriesNumber))
         print("Creation Time: {}".format(dcm.InstanceCreationTime))
         print("Slice Location: {}".format(dcm.SliceLocation))
+
+
+{0: {(34, 43): [(0, 221), (2, 3212), (-1, 3421), (1, 1234), (10, 123432)],
+    (52, 12): [(-2, 421), (21, 412), (5, 2321)]}, 
+1: {(0, 2): [(54, 12123), (55, 12123)]}}
