@@ -7,6 +7,8 @@
 #                David Macaraeg <dmacaraeg@g.ucla.edu>
 # :: Creation Date: 15 May 2019
 
+import pydicom
+import numpy as np
 from random import sample
 
 def random_sample_pixel_map(pixel_map, number_of_samples):
@@ -37,3 +39,8 @@ def map_pixel_data(pixels, ignore_zero_intensity = True):
                 continue
             sto[(x, y)] = pixels[x][y]
     return sto
+
+import os
+def three_dimensional_representation(folder_name):
+    for filename in os.listdir(folder_name):
+        pass
