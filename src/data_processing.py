@@ -8,9 +8,10 @@
 #                David Macaraeg <dmacaraeg@g.ucla.edu>
 # :: Creation Date: 26 May 2019
 
+from random import sample
+
 from scipy import interpolate
 import numpy as np
-
 
 # TODO: Can use interp_func.x to get range of acceptable inputs, and then get fixed number of outputs
 def generate_interpolations_per_slice(slice_dict):
@@ -33,4 +34,12 @@ def generate_interpolations_per_slice(slice_dict):
                 for (slice_id, coord_dict) in slice_dict.items()
             }
     )
+
+
+def sample_slices(interpolation_dict, n_samples):
+    """
+    Semi-randomly samples the slice-interpolation dictionary to obtain n_samples total coordinates from each slice,
+    50% of which should survive, 50% of which should die.
+    """
+    return -1 # STUB
 
