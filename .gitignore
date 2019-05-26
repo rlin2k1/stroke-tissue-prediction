@@ -6,7 +6,9 @@
 
 # DICOM files
 *.dcm
-playground/ep2d_perf_35/* # test perfusion files
+
+# Test Output
+ip-tst-*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

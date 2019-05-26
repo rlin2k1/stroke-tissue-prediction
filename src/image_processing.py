@@ -12,8 +12,15 @@ import sys, os
 from random import sample
 from collections import defaultdict
 from operator import itemgetter
+import argparse
 
 import pydicom
+import numpy as np
+
+parser = argparse.ArgumentParser(description="Processes DCM files into python data structures.")
+
+parser.add_argument("directory_name", action="store")
+parser.add_argument("-r", "--recursive", action="store_true", dest="recursive", default=False, help="Examine all subdirectories within directory_name, assuming each subdirectory corresponds to a patient. Ignores DCM files within the immediate directory.")
 
 
 def random_sample_pixel_map(pixel_map, number_of_samples):
@@ -40,41 +47,74 @@ def _clean_slice_dict(slice_dict):
     return {slice_id: {coord: [i_val for (_, i_val) in intensity_arr] for (coord, intensity_arr) in coord_dict.items()} for (slice_id, coord_dict) in slice_dict.items()}
 
 
-def _sort_slice_dict(slice_dict):
+def _sort_slice_dict(slice_dict, use_arr_storage):
     """
     Sorts the nested pixel arrays within {slice_id: {coord: pixel_arr}}-type dictionaries in order of ascending time.
     Assumes items in a pixel_arr are in the form (timestamp, pixel_value)
 
     :param dict slice_dict: a dict of the form {slice_id: {coord: pixel_arr}}.
+    :param bool use_arr_storage: assumes dict in the following forms based on this value:
+        if use_arr_storage is True: {slice_id: [(time_stamp, pixel_array), (time_stamp, pixel_array)...]}
+        if use_arr_storage is False: {slice_id: {pixel_coordinate: array_of_pixel_values_over_time}}
     :return: the same dictionary, but with each given pixel intensity array sorted via the time slice the data corresponds to.
     :rtpye: dict
     """
-    for coordinate_dict in slice_dict.values():
-        for pixel_arr in coordinate_dict.values():
-            pixel_arr.sort(key=itemgetter(0))
+    if use_arr_storage:
+        for timestamped_pixelmaps in slice_dict.values():
+            timestamped_pixelmaps.sort(key=itemgetter(0))
+    else:
+        for coordinate_dict in slice_dict.values():
+            for pixel_arr in coordinate_dict.values():
+                pixel_arr.sort(key=itemgetter(0))
 
 
-def parse_dcm_data(directory_name):
+def parse_dcm_data(directory_name, use_arr_storage=True):
     """
-    Parses all DCMs within list of files, creating a mapping between patient_id, pixel coordinates, and pixel intensity over time.
+    Parses all DCMs within directory_name, creating a mapping between slice_id, pixel coordinates, and pixel intensity over time.
+    Will not look at subdirectories.
 
-    :param directory_name: the name of a directory with DCM files to examine.
-    :return: a dictionary in the following form: {slice_id: {pixel_coordinate: array_of_pixel_values_over_time}}
+    :param str directory_name: the name of a directory with DCM files to examine.
+    :param bool use_arr_storage: affects form of return value. See below.
+    :return: a dictionary in one of the following forms: 
+        if use_arr_storage is True: {slice_id: [(time_stamp, pixel_array), (time_stamp, pixel_array)...]}
+        if use_arr_storage is False: {slice_id: {pixel_coordinate: array_of_pixel_values_over_time}}
     :rtpye: dict
     """
-    slice_dict = {}
+    slice_dict = defaultdict(list) if use_arr_storage else {}
     for file in os.listdir(directory_name):
         if file.endswith(".dcm"):
             dcm = pydicom.dcmread(os.path.join(directory_name, file))
-            if dcm.SliceLocation in slice_dict.keys():
-                map_pixel_data(dcm.pixel_array, dcm.InstanceCreationTime, slice_dict[dcm.SliceLocation])
+            if use_arr_storage:
+                slice_dict[dcm.SliceLocation].append((dcm.InstanceCreationTime, dcm.pixel_array))
             else:
-                slice_dict[dcm.SliceLocation] = map_pixel_data(dcm.pixel_array, dcm.InstanceCreationTime)
-    _sort_slice_dict(slice_dict)
+                if dcm.SliceLocation in slice_dict.keys():
+                    map_pixel_data(dcm.pixel_array, dcm.InstanceCreationTime, slice_dict[dcm.SliceLocation])
+                else:
+                    slice_dict[dcm.SliceLocation] = map_pixel_data(dcm.pixel_array, dcm.InstanceCreationTime)
+    _sort_slice_dict(slice_dict, use_arr_storage)
     return slice_dict
 
 
-def map_pixel_data(pixels, creation_time, slice_data = None, ignore_zero_intensity = True):
+def parse_dcm_data_recursively(root_directory_name, use_arr_storage=True):
+    """
+    Parses all DCMs contained within subdirectories inside root_directory_name, creating a mapping between patient_id, slice_id, pixel coordinates, and pixel intensity over time.
+    patient_id is taken from an arbitrary number assigned to the patient's directory.
+
+    :param str root_directory_name: the name of a directory with DCM files to examine.
+    :param bool use_arr_storage: affects form of return value. See below.
+    :return: a dictionary in one of the following forms: 
+        if use_arr_storage is True: {slice_id: [(time_stamp, pixel_array), (time_stamp, pixel_array)...]}
+        if use_arr_storage is False: {slice_id: {pixel_coordinate: array_of_pixel_values_over_time}}
+    :rtpye: dict
+    """
+    patient_dict = {}
+    for root, dirs, _ in os.walk(root_directory_name):
+        for id_num, directory in enumerate(dirs):
+            patient_dict[id_num] = parse_dcm_data(os.path.join(root, directory), use_arr_storage)
+    return patient_dict
+
+
+def map_pixel_data(pixels, creation_time, slice_data=None, ignore_zero_intensity=True):
     """
     Creates a dictionary of pixel coordinates to pixel values.
 
@@ -94,8 +134,9 @@ def map_pixel_data(pixels, creation_time, slice_data = None, ignore_zero_intensi
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
-        print("Processing DCMs in directory: {}".format(sys.argv[1]))
-        print(parse_dcm_data(str(sys.argv[1])))
+    args = parser.parse_args()
+    print("Processing DCMs in directory: {}".format(args.directory_name))
+    if args.recursive:
+        print(parse_dcm_data_recursively(str(args.directory_name)))
     else:
-        sys.exit("USAGE: python image_processing.py <directory with DCM files>")
+        print(parse_dcm_data(str(args.directory_name)))
