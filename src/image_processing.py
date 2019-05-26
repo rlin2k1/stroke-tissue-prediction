@@ -29,19 +29,29 @@ def random_sample_pixel_map(pixel_map, number_of_samples):
     return {k: v for (k, v) in pixel_map.items() if k in keys}
 
 
-def _sort_and_clean_slice_dict(slice_dict):
+def _clean_slice_dict(slice_dict):
     """
-    Sorts the nested pixel arrays within {slice_id: {coord: pixel_arr}}-type dictionaries.
-    Then use dictionary comprehension to remove the time data from pixel_arrs, turning [(time, val), (time, val)] into [val, val]
+    Uses dictionary comprehension to remove the time data from pixel_arrs, turning [(time, val), (time, val)] into [val, val]
 
     :param dict slice_dict: a dict of the form {slice_id: {coord: pixel_arr}}.
-    :return: the same dictionary, but with the (time, val) tuples in pixel_arrs replaced just by their values, after being sorted via time.
+    :return: the same dictionary, but with the (time, val) tuples in pixel_arrs replaced just by their values.
+    :rtpye: dict
+    """
+    return {slice_id: {coord: [i_val for (_, i_val) in intensity_arr] for (coord, intensity_arr) in coord_dict.items()} for (slice_id, coord_dict) in slice_dict.items()}
+
+
+def _sort_slice_dict(slice_dict):
+    """
+    Sorts the nested pixel arrays within {slice_id: {coord: pixel_arr}}-type dictionaries in order of ascending time.
+    Assumes items in a pixel_arr are in the form (timestamp, pixel_value)
+
+    :param dict slice_dict: a dict of the form {slice_id: {coord: pixel_arr}}.
+    :return: the same dictionary, but with each given pixel intensity array sorted via the time slice the data corresponds to.
     :rtpye: dict
     """
     for coordinate_dict in slice_dict.values():
         for pixel_arr in coordinate_dict.values():
             pixel_arr.sort(key=itemgetter(0))
-    return {slice_id: {coord: [i_val for (_, i_val) in intensity_arr] for (coord, intensity_arr) in coord_dict.items()} for (slice_id, coord_dict) in slice_dict.items()}
 
 
 def parse_dcm_data(directory_name):
@@ -60,7 +70,8 @@ def parse_dcm_data(directory_name):
                 map_pixel_data(dcm.pixel_array, dcm.InstanceCreationTime, slice_dict[dcm.SliceLocation])
             else:
                 slice_dict[dcm.SliceLocation] = map_pixel_data(dcm.pixel_array, dcm.InstanceCreationTime)
-    return _sort_and_clean_slice_dict(slice_dict)
+    _sort_slice_dict(slice_dict)
+    return slice_dict
 
 
 def map_pixel_data(pixels, creation_time, slice_data = None, ignore_zero_intensity = True):
