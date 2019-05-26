@@ -8,14 +8,13 @@
 # :: Creation Date: 15 May 2019
 
 
-import sys, os
+import os
 from random import sample
 from collections import defaultdict
 from operator import itemgetter
 import argparse
 
 import pydicom
-import numpy as np
 
 parser = argparse.ArgumentParser(description="Processes DCM files into python data structures.")
 
