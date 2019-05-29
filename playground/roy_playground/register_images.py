@@ -115,7 +115,7 @@ def register_images(fixed_image_path, directory_path):
                 + ".txt" , "w")
             registeredImage = transformixImageFilter.GetResultImage()
             registeredImage = sitk.GetArrayFromImage(registeredImage)
-            f.write(str(registeredImage))
+            f.write(str(registeredImage.tolist()))
             f.close()
 
             # ---------------------------------------------------------------- #
