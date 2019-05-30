@@ -10,7 +10,7 @@ sys.path.append("..")
 
 import os
 import pydicom
-from src import image_processing as ip
+# from src import image_processing as ip
 
 _INSTANCE_NUMBER = (0x0020, 0x0013)
 _ACQUISITION_NUMBER = (0x0020, 0x0012)
@@ -21,14 +21,14 @@ _ACQUISITION_NUMBER = (0x0020, 0x0012)
 # Instance Number uniquely identifies an image within a given series
 # Acquisition number indicates which scan we're doing --> this is the one that will vary with time, then. Have 25 slices per acquisition number.
 # Slice location indicates which slice we're looking at, so we can consistently add a value
-# Creation time will allow for sorting of pixel values within a slice via time, though instance number ought to anyway
+# Creation time will allow for sorting of pixel values within a sllsice via time, though instance number ought to anyway
 
 
-for file in os.listdir("./ep2d_perf_35"):
+for file in os.listdir("./imgs/ep2d_perf_35"):
     if file.endswith(".dcm"):
         print("-----")
-        print("Reading file: {}".format(os.path.join("./ep2d_perf_35", file)))
-        dcm = pydicom.dcmread(os.path.join("./ep2d_perf_35", file))
+        print("Reading file: {}".format(os.path.join("./imgs/ep2d_perf_35", file)))
+        dcm = pydicom.dcmread(os.path.join("./imgs/ep2d_perf_35", file))
         print("Patient ID: {}".format(dcm.PatientID))
         print("Acquisition Number: {}".format(dcm.AcquisitionNumber))
         print("Instance Number: {}".format(dcm.InstanceNumber))
@@ -36,6 +36,8 @@ for file in os.listdir("./ep2d_perf_35"):
         print("Series Number: {}".format(dcm.SeriesNumber))
         print("Creation Time: {}".format(dcm.InstanceCreationTime))
         print("Slice Location: {}".format(dcm.SliceLocation))
+
+# result_acquisitionNum_sliceLoc_creationTime
 
 
 # {0: {(34, 43): [(0, 221), (2, 3212), (-1, 3421), (1, 1234), (10, 123432)],
