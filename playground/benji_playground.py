@@ -23,14 +23,16 @@ _ACQUISITION_NUMBER = (0x0020, 0x0012)
 # Slice location indicates which slice we're looking at, so we can consistently add a value
 # Creation time will allow for sorting of pixel values within a sllsice via time, though instance number ought to anyway
 
-
-for file in os.listdir("./imgs/ep2d_perf_35"):
+direc = "./Patients/1/Perfusion"
+for file in os.listdir(direc):
     if file.endswith(".dcm"):
         print("-----")
-        print("Reading file: {}".format(os.path.join("./imgs/ep2d_perf_35", file)))
-        dcm = pydicom.dcmread(os.path.join("./imgs/ep2d_perf_35", file))
+        print("Reading file: {}".format(os.path.join(direc, file)))
+        dcm = pydicom.dcmread(os.path.join(direc, file))
+        # print(dcm)
         print("Patient ID: {}".format(dcm.PatientID))
         print("Acquisition Number: {}".format(dcm.AcquisitionNumber))
+        print("Acquisiton Time: {}".format(dcm.AcquisitionTime))
         print("Instance Number: {}".format(dcm.InstanceNumber))
         print("Rows, Cols: {}".format((dcm.Rows, dcm.Columns)))
         print("Series Number: {}".format(dcm.SeriesNumber))
