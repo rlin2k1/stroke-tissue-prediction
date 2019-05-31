@@ -7,21 +7,31 @@
 #                David Macaraeg <dmacaraeg@g.ucla.edu>
 # :: Creation Date: 15 May 2019
 
-
+# Standard Library, whole imports
 import os
-from random import sample
-from collections import defaultdict
-from operator import itemgetter
 import argparse
 import re
 
+# Standard Library, specific imports
+from random import sample
+from collections import defaultdict
+from operator import itemgetter
+
+# Dependency Impports
 import pydicom
+
+# ----------------------------------------------------------------------------
+#  Argument Parsing
+# ----------------------------------------------------------------------------
 
 parser = argparse.ArgumentParser(description="Processes DCM files into python data structures.")
 
 parser.add_argument("directory_name", action="store")
 parser.add_argument("-r", "--recursive", action="store_true", dest="recursive", default=False, help="Examine all subdirectories within directory_name, assuming each subdirectory corresponds to a patient. Ignores DCM files within the immediate directory.")
 
+# ----------------------------------------------------------------------------
+#  Functions
+# ----------------------------------------------------------------------------
 
 def random_sample_pixel_map(pixel_map, number_of_samples):
     """
@@ -150,6 +160,10 @@ def map_pixel_data(pixels, creation_time, slice_data=None, ignore_zero_intensity
             slice_data[(x, y)].append((creation_time, pixels[x][y]))
     return slice_data
 
+
+# ----------------------------------------------------------------------------
+#  Main
+# ----------------------------------------------------------------------------
 
 if __name__ == '__main__':
     args = parser.parse_args()

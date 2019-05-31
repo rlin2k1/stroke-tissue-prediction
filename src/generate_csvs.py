@@ -1,21 +1,29 @@
 # :: generate_csvs.py
 #####################################################
-# Generates the CSV files necessary to train
+# Generates the CSV files necessary to train and test
+# the machine learning models.
 #####################################################
 # :: Created By: Benji Brandt <benjibrandt@ucla.edu>, 
 #                Roy Lin <rlin2k1@gmail.com>, 
 #                David Macaraeg <dmacaraeg@g.ucla.edu>
 # :: Creation Date: 26 May 2019
 
+# Standard Libarary, whole imports
 import os
 import argparse
 import csv
 
+# Standard Library, specific imports
 from random import sample
 
+# Local Imports
 import data_processing as dp
 import image_processing as ip
 from utilities import represents_int
+
+# ----------------------------------------------------------------------------
+#  Argument Parsing
+# ----------------------------------------------------------------------------
 
 parser = argparse.ArgumentParser(description="Generates CSV training data from a set of perfusion and labeled flair images.")
 
@@ -24,8 +32,16 @@ parser.add_argument("sample_count", action="store", help="The number of intensit
 parser.add_argument("nlive", action="store", help="The number of intensity arrays which represent surviving pixels to sample.")
 parser.add_argument("ndie", action="store", help="The number of intensity arrays which represent dying pixels to sample.")
 
+# ----------------------------------------------------------------------------
+#  Constants
+# ----------------------------------------------------------------------------
+
 _PERFUSION = "Perfusion"
 _FLAIR = "FLAIR-COREG"
+
+# ----------------------------------------------------------------------------
+#  Functions
+# ----------------------------------------------------------------------------
 
 def sample_pixel_array(pixel_array, nlive, ndie):
     """
@@ -151,9 +167,12 @@ def parse_structured_dcm_data(structured_directory, sample_count, nlive, ndie, u
                     test_csv.writerow(["X", "Y", "Z", "PixelDensity"])
                     for perf_slice, coord_dict in dfd.items():
                         for coord, intensity_arr in coord_dict.items():
-                                test_csv.writerow([0, *coord, perf_slice])
+                                test_csv.writerow([*coord, perf_slice, *intensity_arr])
                 print("Done!")
 
+# ----------------------------------------------------------------------------
+#  Main
+# ----------------------------------------------------------------------------
 
 if __name__ == '__main__':
     args = parser.parse_args()

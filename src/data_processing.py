@@ -8,13 +8,18 @@
 #                David Macaraeg <dmacaraeg@g.ucla.edu>
 # :: Creation Date: 26 May 2019
 
+# Standard Library, specific imports
 from random import sample
 from math import floor
 
+# Dependency Imports
 from scipy import interpolate
 import numpy as np
 
-# TODO: Can use interp_func.x to get range of acceptable inputs, and then get fixed number of outputs
+# ----------------------------------------------------------------------------
+#  Functions
+# ----------------------------------------------------------------------------
+
 def generate_interpolations_per_slice(slice_dict):
     """
     Takes the data from a slice dictionary in the form {slice_id: {pixel_coordinate: array_of_pixel_values_over_time}}
@@ -74,5 +79,3 @@ def generate_resampled_slice_dict(interpolation_dict, n_intensity_vals):
                 for (slice_id, coord_dict) in interpolation_dict.items()
             }
     )
-
-
