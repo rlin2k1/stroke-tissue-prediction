@@ -46,12 +46,12 @@ def sample_interp_intensity(interp_func, count):
     :return: a list of length count, with values obtained at evenly-spaced intervals across interp_func to obtain count total
     """
     times = interp_func.x
-    t_start = times[0]
-    t_end = times[len(times)-1]
-    step = (t_end - t_start) / count
+    t_start = float(times[0])
+    t_end = float(times[len(times)-1])
+    step = (t_end - t_start) / float(count)
     l = []
     for t in np.arange(t_start, t_end, step):
-        l.append(interp_func(t).item())
+        l.append(float(interp_func(t).item()))
     return l
 
 
