@@ -151,10 +151,10 @@ def map_pixel_data(pixels, creation_time, slice_data=None, ignore_zero_intensity
     return slice_data
 
 
-# if __name__ == '__main__':
-#     args = parser.parse_args()
-#     print("Processing DCMs in directory: {}".format(args.directory_name))
-#     if args.recursive:
-#         print(parse_perfusion_data_recursively(str(args.directory_name)))
-#     else:
-#         print(parse_perfusion_data(str(args.directory_name)))
+if __name__ == '__main__':
+    args = parser.parse_args()
+    print("Processing DCMs in directory: {}".format(args.directory_name))
+    if args.recursive:
+        print(parse_perfusion_data_recursively(str(args.directory_name)))
+    else:
+        print(parse_perfusion_data(str(args.directory_name)))
