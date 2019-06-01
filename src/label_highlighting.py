@@ -1,3 +1,12 @@
+# :: label_highlighting.py
+#####################################################
+# Functions to handle processing the raw DCM images.
+#####################################################
+# :: Created By: Benji Brandt <benjibrandt@ucla.edu>, 
+#                Roy Lin <rlin2k1@gmail.com>, 
+#                David Macaraeg <dmacaraeg@g.ucla.edu>
+# :: Creation Date: May 29, 2019
+
 import sys
 sys.path.append("..")
 import os
