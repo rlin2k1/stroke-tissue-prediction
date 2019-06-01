@@ -7,6 +7,9 @@
 # DICOM files
 *.dcm
 
+# CSV Files
+*.csv
+
 # Test Output
 ip-tst-*.txt
 

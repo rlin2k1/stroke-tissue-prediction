@@ -4,7 +4,7 @@ coordinate axis of the fixed image.
 
 Image Registration with SimpleITK
 
-USAGE: python2 register_images.py FIXEDIMAGEPATH DIRECTORYPATH
+USAGE: python2 register_images.py CSVFILE
 Export Function: register_images
 
 Author(s):
@@ -35,7 +35,7 @@ matplotlib.use('tkagg') # MacOS Support for Displaying Images
 # ---------------------------------------------------------------------------- #
 # Image Registration Function
 # ---------------------------------------------------------------------------- #
-def register_images(fixed_image_path, directory_path):
+def register_images(fixed_image_path, directory_path, moving, number):
     """
     Takes one fixed image and a directory of moving images. Transforms all
     moving images in the directory to the coordinate plane of the fixed image. 
@@ -60,7 +60,7 @@ def register_images(fixed_image_path, directory_path):
     fixed = sitk.ReadImage(fixed_image_path)
     # moving = sitk.ReadImage(os.path.join(directory_path, \
     #    os.listdir(directory_path)[0]))
-    moving = sitk.ReadImage(os.path.join(directory_path, 'moving.dcm'))
+    moving = sitk.ReadImage(os.path.join(directory_path, moving))
 
     # ------------------------------------------------------------------------ #
     # Translate 3-D DCM Images to 2-D Frame. Lose 3rd Dimension
@@ -90,16 +90,16 @@ def register_images(fixed_image_path, directory_path):
     transformixImageFilter = sitk.TransformixImageFilter()
     transformixImageFilter.SetTransformParameterMap(transformationMap)
 
-    dir = "RESULTS"
+    dir = "RESULTS/" + number
     if os.path.exists(dir):
         shutil.rmtree(dir)
     os.mkdir(dir)
 
     fixed = sitk.GetArrayFromImage(fixed)
 
-    for file in os.listdir(directory_path):
+    for file in os.listdir('Labeled/' + number):
         if(file.endswith(".dcm")):
-            filePath = os.path.join(directory_path, file)
+            filePath = os.path.join('Labeled/' + number, file)
             moving = sitk.ReadImage(filePath)
             moving = sitk.Extract(moving, (moving.GetWidth(), \
                 moving.GetHeight(), 0), (0, 0, 0))
@@ -111,30 +111,38 @@ def register_images(fixed_image_path, directory_path):
             # Acquisition Number Is In Increasing Order
             # Will Change Instance Creation Time to Acquition Time Once We Have
             # f = open(dir + "/result_" + str(dcm.AcquisitionNumber) + "_" + \
-            #    str(dcm.SliceLocation) + "_" + str(dcm.InstanceCreationTime) \
+            #    str(dcm.SliceLocation) + "_" + str(dcm.AcquisitionTime) + str(dcm.AcquisitionTime) \
             #    + ".dicom" , "w")
             registeredImage = transformixImageFilter.GetResultImage()
-            registeredImage = sitk.GetArrayFromImage(registeredImage)
+            #registeredImage = sitk.GetArrayFromImage(registeredImage)
             # f.write(str(registeredImage.tolist()))
             # f.close()
-            sitk.WriteImage(registeredImage, os.path.join(OUTPUT_DIR, str(dcm.SliceLocation) + "_" + str(dcm.InstanceCreationTime) + ".dicom"))
+
+            castFilter = sitk.CastImageFilter()
+            castFilter.SetOutputPixelType(sitk.sitkInt16)
+            # Convert floating type image (imgSmooth) to int type (imgFiltered)
+            imgFiltered = castFilter.Execute(registeredImage)
+
+            sitk.WriteImage(imgFiltered, dir + "/result_" + file[:-4] + '_' + str(dcm.AcquisitionNumber) + '_' + str(dcm.AcquisitionTime) + '_' + str(dcm.SliceLocation) + '.dcm')
+            #print(dir + "/result_" + file)
+            #sitk.WriteImage(registeredImage, dir + "/result_" + file)
 
             # ---------------------------------------------------------------- #
             # Show Image Translations
             # ---------------------------------------------------------------- #
-            moving = sitk.GetArrayFromImage(moving)
+            # moving = sitk.GetArrayFromImage(moving)
 
-            figure = plt.figure()
-            subplot = figure.add_subplot(1, 3, 1)
-            imgplot = plt.imshow(fixed)
-            subplot.set_title('Before Surgery. First MRI')
-            subplot = figure.add_subplot(1, 3, 2)
-            imgplot = plt.imshow(moving)
-            subplot.set_title('After Surgery. Second MRI')
-            subplot = figure.add_subplot(1, 3, 3)
-            imgplot = plt.imshow(registeredImage)
-            subplot.set_title('Moving Surgery Label to 1st MRI Coord System')
-            plt.show()
+            # figure = plt.figure()
+            # subplot = figure.add_subplot(1, 3, 1)
+            # imgplot = plt.imshow(fixed)
+            # subplot.set_title('Before Surgery. First MRI')
+            # subplot = figure.add_subplot(1, 3, 2)
+            # imgplot = plt.imshow(moving)
+            # subplot.set_title('After Surgery. Second MRI')
+            # subplot = figure.add_subplot(1, 3, 3)
+            # imgplot = plt.imshow(registeredImage)
+            # subplot.set_title('Moving Surgery Label to 1st MRI Coord System')
+            # plt.show()
 
 def main():
     # ------------------------------------------------------------------------ #
@@ -148,7 +156,17 @@ def main():
     fixed_path = sys.argv[1]
     directory_path = sys.argv[2]
 
-    register_images(fixed_path, directory_path)
+    f = open('Patient_Coregistration.csv', 'r')
+    for line in f:
+        line = line.strip('\n')
+        line = line.split(',')
+        number = line[0]
+        flair = line[1]
+        perfusion = line[2]
+        fixed_path = "Patients/" + number + "/Perfusion/" + perfusion
+        directory_path = "Patients/" + number + "/FLAIR"
+        register_images(fixed_path, directory_path, flair, number)
+    # register_images(fixed_path, directory_path)
 
 if __name__ == "__main__":
     main()
@@ -175,4 +193,7 @@ truth' for the coordinate plane. I made a transformation matrix from the fixed
 image and the moving image and applied this moving image to the other moving 
 images in the directory to get the registered images. I write these image pixel
 values to a text file in a new directory.
+
+Patients/2/Perfusion/IM-0004-0009.dcm
+Patients/2/FLAIR
 """

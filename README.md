@@ -29,7 +29,29 @@ These are installed via the bootstrapping process described in `Getting Started`
 
 ## Usage
 
-1. TODO: work on this.
+#### Generating `CSV` Files from Raw `DICOM`s
+
+1. From within the virtualenv, at the root of the repo, run `src/generate_csvs.py {directory_with_dicoms} {n_intensity_vals} {n_live} {n_die}`. 
+   - For a more verbose description of these options and their utilization, run `src/generate_csvs.py -h`.
+2. This will generate a training and a testing `csv` per patient, which can be put through the machine learning models.
+   - NOTE: directories must be structured like so:
+   ```
+   Patients <-- structured_directory_root
+        |--- 1 <-- patient number... must be an integer
+             |--- FLAIR
+             |--- Perfusion
+        |--- 2
+             |--- FLAIR
+             |--- Perfusion
+        |--- ...
+        |--- N
+             |--- FLAIR
+             |--- Perfusion
+   ```
+
+#### Utilizing `CSV` Files
+
+1. TODO: fill in
 
 ## Cleanup
 
