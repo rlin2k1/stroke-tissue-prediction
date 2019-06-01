@@ -55,7 +55,7 @@ def sample_interp_intensity(interp_func, count):
     t_end = float(times[len(times)-1])
     step = (t_end - t_start) / float(count)
     l = []
-    for t in np.arange(t_start, t_end, step):
+    for t in np.arange(t_start, t_end-1, step):
         l.append(float(interp_func(t).item()))
     return l
 

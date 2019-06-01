@@ -37,7 +37,7 @@ parser.add_argument("ndie", action="store", help="The number of intensity arrays
 # ----------------------------------------------------------------------------
 
 _PERFUSION = "Perfusion"
-_FLAIR = "FLAIR-COREG"
+_FLAIR = "FLAIR"
 
 # ----------------------------------------------------------------------------
 #  Functions
@@ -60,9 +60,9 @@ def sample_pixel_array(pixel_array, nlive, ndie):
     for y in range(len(pixel_array)):
         for x in range(len(pixel_array[0])):
             if pixel_array[y][x] > 0:
-                l.append((x, y))
-            else:
                 d.append((x, y))
+            else:
+                l.append((x, y))
     dead_sample = sample(d, ndie) if len(d) >= ndie else d
     if len(dead_sample) < ndie:
         nlive += ndie - len(dead_sample)
@@ -135,14 +135,13 @@ def parse_structured_dcm_data(structured_directory, sample_count, nlive, ndie, u
                 dd = ip.parse_perfusion_data(os.path.join(root, directory, _PERFUSION), use_arr_storage)
                 print("Done!\nGenerating interpolations per slice...")
                 df = dp.generate_interpolations_per_slice(dd)
-                print("Done!\nGenerating resampled arrays per slice...")
-                dfd = dp.generate_resampled_slice_dict(df, sample_count)
+                #dfd = dp.generate_resampled_slice_dict(df, sample_count)
                 # with the above, we now have voxels mapped to intensity arrays
                 # now, we want to sample individual pixels per slice, 50% of which live, 50% of which die
                 print("Done!\nParsing flair data...")
                 labeled_flairs = ip.parse_flair_data(os.path.join(root, directory, _FLAIR))
                 print("Done!\nSampling flair data...")
-                perf_to_nrom, norm_to_perf = generate_normalized_slice_loc_map(dfd)
+                perf_to_normm, norm_to_perf = generate_normalized_slice_loc_map(df)
                 flair_to_norm, norm_to_flair = generate_normalized_slice_loc_map(labeled_flairs)
                 lfd = sample_labeled_flairs(labeled_flairs, nlive, ndie)
                 print("Done!\nWriting training CSV file...")
@@ -152,22 +151,25 @@ def parse_structured_dcm_data(structured_directory, sample_count, nlive, ndie, u
                     training_csv.writerow(["Healthy", "PixelDensity"])
                     for unorm_flair_slice, (live_coords, dead_coords) in lfd.items():
                         norm_flair_slice = flair_to_norm[unorm_flair_slice]
-                        unorm_perf_slice = norm_to_perf[norm_flair_slice]
+                        unorm_perf_slice = norm_to_perf.get(norm_flair_slice)
+                        if unorm_perf_slice is None:
+                            print("WARNING: skipping unmatched perfusion slice...")
+                            continue
                         for coord in live_coords:
-                            pv = dfd[unorm_perf_slice].get(coord)
-                            if pv is not None: # some coordinates may still not carry over even with coregistration, such is a fact of life
-                                training_csv.writerow([0, *pv])
+                            interp_func = df[unorm_perf_slice].get(coord)
+                            if interp_func is not None: # some coordinates may still not carry over even with coregistration, such is a fact of life
+                                training_csv.writerow([0, *(dp.sample_interp_intensity(interp_func, sample_count))])
                         for coord in dead_coords:
-                            pv = dfd[unorm_perf_slice].get(coord)
-                            if pv is not None: # some coordinates may still not carry over even with coregistration, such is a fact of life
-                                training_csv.writerow([1, *pv])
+                            interp_func = df[unorm_perf_slice].get(coord)
+                            if interp_func is not None: # some coordinates may still not carry over even with coregistration, such is a fact of life
+                                 training_csv.writerow([1, *(dp.sample_interp_intensity(interp_func, sample_count))])
                 print("Done!\nWriting testing CSV file...")
                 with open("patient_{}_test.csv".format(directory), mode="a+") as tstcsv:
                     test_csv = csv.writer(tstcsv, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                     test_csv.writerow(["X", "Y", "Z", "PixelDensity"])
-                    for perf_slice, coord_dict in dfd.items():
-                        for coord, intensity_arr in coord_dict.items():
-                                test_csv.writerow([*coord, perf_slice, *intensity_arr])
+                    for perf_slice, coord_dict in df.items():
+                        for coord, interp_func in coord_dict.items():
+                                test_csv.writerow([*coord, perf_slice, *(dp.sample_interp_intensity(interp_func, sample_count))])
                 print("Done!")
 
 # ----------------------------------------------------------------------------
@@ -177,4 +179,4 @@ def parse_structured_dcm_data(structured_directory, sample_count, nlive, ndie, u
 if __name__ == '__main__':
     args = parser.parse_args()
     print("Processing DCMs in directory: {}".format(args.directory_name))
-    parse_structured_dcm_data(str(args.directory_name), args.sample_count, args.nlive, args.ndie)
+    parse_structured_dcm_data(str(args.directory_name), args.sample_count, int(args.nlive), int(args.ndie))
