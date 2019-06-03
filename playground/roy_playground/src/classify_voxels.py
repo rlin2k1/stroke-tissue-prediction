@@ -32,6 +32,8 @@ from inspect import signature
 
 from joblib import dump, load
 
+import time
+
 import argparse
 
 def error(clf, X, y, ntrials=1, test_size=0.2) :
@@ -55,30 +57,33 @@ def error(clf, X, y, ntrials=1, test_size=0.2) :
     # ------------------------------------------------------------------------ #
     # Computes Cross - Validation Error Over N Trials
     # ------------------------------------------------------------------------ #
-    train_error = 0
-    test_error = 0
+    train_f1_error = 0
+    test_f1_error = 0
+    
+    train_accuracy = 0
+    test_accuracy = 0
     for trial in range(ntrials):
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=trial)
         clf.fit(X_train, y_train)
         y_pred_train = clf.predict(X_train)
         y_pred_test = clf.predict(X_test)
-        train_error = train_error + metrics.f1_score(y_train, y_pred_train)
-        test_error = test_error + metrics.f1_score(y_test, y_pred_test)
-    
-    train_error = train_error/float(ntrials) * 100
-    test_error = test_error/float(ntrials) * 100
 
-    return train_error, test_error
+        train_f1_error = train_f1_error + round(metrics.f1_score(y_train, y_pred_train), 2)
+        test_f1_error = test_f1_error + round(metrics.f1_score(y_test, y_pred_test), 2)
 
+        try:
+            train_accuracy = train_accuracy + clf.score(X_train, y_pred_train)
+            test_accuracy = test_accuracy + clf.score(X_test, y_pred_test)
+        except:
+            print("No SCORE Function")
 
-def write_predictions(y_pred, filename, yname=None) :
-    """Write out predictions to csv file."""
-    out = open(filename, 'wb')
-    f = csv.writer(out)
-    if yname :
-        f.writerow([yname])
-    f.writerows(zip(y_pred))
-    out.close()
+    train_f1_error = train_f1_error/float(ntrials) * 100
+    test_f1_error = test_f1_error/float(ntrials) * 100
+    train_accuracy = train_accuracy/float(ntrials) * 100
+    test_accuracy = test_accuracy/float(ntrials) * 100
+
+    return train_f1_error, test_f1_error, train_accuracy, test_accuracy
+
 
 def write_predictions(y_pred, filename, yname=None) :
     """Write out predictions to csv file."""
@@ -198,17 +203,17 @@ def main():
     # Load Stroke-MRI DataSet
     # ------------------------------------------------------------------------ #
     models = {
-        'BaggingClassifier':BaggingClassifier(n_estimators=20), #LONGGG
+        'BaggingClassifier':BaggingClassifier(n_estimators=20),
         'GradientBoostingClassifier':GradientBoostingClassifier(n_estimators=300, max_depth=6, loss='exponential'),
         'LogisticRegression':linear_model.LogisticRegression(solver='lbfgs'),
-        'MLPClassifier_ActivationIdentity':MLPClassifier(activation='identity'), #No Decision Function
-        'MLPClassifier_ActivationLogistic':MLPClassifier(activation='logistic', max_iter=400), #No Decision Function
-        'MLPClassifier_TanH':MLPClassifier(activation='tanh', max_iter=1000), #BROKEN
-        'MLPClassifier_Relu':MLPClassifier(activation='relu', max_iter=1000), #BROKEN
-        'NearestCentroid':NearestCentroid(), #No Decision Function
-        'KNeighborsRegressor':KNeighborsRegressor(n_neighbors=20), #Regression
-        'KNeighborsClassifier':KNeighborsClassifier(n_neighbors=5, weights='distance'), #No Decision Function
-        'RadiusNeighborsClassifier':RadiusNeighborsClassifier(radius=20, outlier_label=0, weights='uniform'), #Breaks on F Score
+        'MLPClassifier_ActivationIdentity':MLPClassifier(activation='identity'),
+        'MLPClassifier_ActivationLogistic':MLPClassifier(activation='logistic', max_iter=400),
+        'MLPClassifier_TanH':MLPClassifier(activation='tanh', max_iter=1000),
+        'MLPClassifier_Relu':MLPClassifier(activation='relu', max_iter=1000),
+        'NearestCentroid':NearestCentroid(),
+        # 'KNeighborsRegressor':KNeighborsRegressor(n_neighbors=20), #FAILS
+        'KNeighborsClassifier':KNeighborsClassifier(n_neighbors=5, weights='distance'),
+        # 'RadiusNeighborsClassifier':RadiusNeighborsClassifier(radius=20, outlier_label=0, weights='uniform'), #FAILS
         'DecisionTree':DecisionTreeClassifier(max_depth=None),
         'RandomForest':RandomForestClassifier(n_estimators=30),
         'ExtraTreesClassifier':ExtraTreesClassifier(n_estimators=30),
@@ -287,21 +292,51 @@ def main():
 
         normalized_X = preprocessing.scale(X)
 
+        filename = "output1.csv"
+        if os.path.exists(filename):
+            try:
+                os.remove(filename)
+            except:
+                print("Could not remove", filename, "Insufficient Permissions")
+                sys.exit(1)
+        log = open(filename, "w+")
 
         print("Testing All Classifiers")
         for key, value in models.items():
             print("Classifying using Sci-Kit Learn:",key,"Classifier")
+            log.write("Classifying using Sci-Kit Learn:" + ' ' + key + ' ' + "Classifier\n")
+            log.flush()
             clf = value
             try:
-                training_error_decision, testing_error_decision = error(clf, normalized_X, y)
-                print(key, "Training Accuracy:",str(training_error_decision))
-                print(key, "Testing Accuracy: " + str(testing_error_decision))
+                start_time = time.time()
+                training_error_decision, testing_error_decision, train_accuracy, test_accuracy = error(clf, normalized_X, y)
+                print("TOOK", str(time.time() - start_time), "To Train")
+                log.write("TOOK " + str(time.time() - start_time) + " " + "To Train")
+                log.flush()
+
+                print(key, "Training F1 Score:",str(training_error_decision))
+                log.write(key + ' ' + "F1 Score:" + ' ' + str(training_error_decision)+'\n')
+                log.flush()
+                print(key, "Testing F1 Score: " + str(testing_error_decision))
+                log.write(key + ' ' + "Testing F1 Score: " + ' ' + str(testing_error_decision)+'\n')
+                log.flush()
+
+                print(key, "Training Accuracy:",str(train_accuracy))
+                log.write(key + ' ' + "Training Accuracy:" + ' ' + str(train_accuracy)+'\n')
+                log.flush()
+                print(key, "Testing Accuracy: " + str(test_accuracy))
+                log.write(key + ' ' + "Testing Accuracy: " + ' ' + str(test_accuracy)+'\n')
+                log.flush()
                 print("-----------------------------------------------------------")
+                log.write("-----------------------------------------------------------\n")
+                log.flush()
                 train_error.append(training_error_decision)
                 test_error.append(testing_error_decision)
                 model_names.append(key)
             except:
                 print("Failed On",key,"Classifier")
+                log.write("Failed On"+ ' ' +key+ ' ' +"Classifier\n")
+                log.flush()
                 continue
 
         plot_train_test(train_error, test_error, model_names)
