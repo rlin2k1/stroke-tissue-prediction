@@ -122,6 +122,8 @@ if [ $condense = true ]; then
     else
         echo > $CONDENSED
     fi
+else
+    CONDENSED=/dev/null
 fi
 
 ##############################################

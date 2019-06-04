@@ -84,11 +84,7 @@ def _sort_slice_dict(slice_dict, use_arr_storage):
                 pixel_arr.sort(key=itemgetter(0))
 
 
-<<<<<<< HEAD
-def parse_dcm_data(directory_name, use_arr_storage=False):
-=======
 def parse_perfusion_data(directory_name, use_arr_storage=False):
->>>>>>> 46a4c19023d09fc6a835fe3d3351236698cded5f
     """
     Parses all DCMs within directory_name, creating a mapping between slice_id, pixel coordinates, and pixel intensity over time.
     Will not look at subdirectories.
@@ -115,11 +111,7 @@ def parse_perfusion_data(directory_name, use_arr_storage=False):
     return slice_dict
 
 
-<<<<<<< HEAD
-def parse_dcm_data_recursively(root_directory_name, use_arr_storage=False):
-=======
 def parse_perfusion_data_recursively(root_directory_name, use_arr_storage=False):
->>>>>>> 46a4c19023d09fc6a835fe3d3351236698cded5f
     """
     Parses all DCMs contained within subdirectories inside root_directory_name, creating a mapping between patient_id, slice_id, pixel coordinates, and pixel intensity over time.
     patient_id is taken from an arbitrary number assigned to the patient's directory.
@@ -138,37 +130,6 @@ def parse_perfusion_data_recursively(root_directory_name, use_arr_storage=False)
     return patient_dict
 
 
-<<<<<<< HEAD
-def parse_structured_dcm_data(structured_directory, use_arr_storage=False):
-    """
-    Parses DCM data that has been structured in the following format:
-        Patients <-- structured_directory_root
-        |--- 1 <-- must be an integer
-             |--- FLAIR
-             |--- Perfusion
-        |--- 2
-             |--- FLAIR
-             |--- Perfusion
-        |--- ...
-        |--- N
-             |--- FLAIR
-             |--- Perfusion
-
-    :param str structured_directory: the name of a directory with DCM files, structured as above.
-    :param bool use_arr_storage: affects form of return value. See below.
-    :return: a dictionary in one of the following forms: 
-        if use_arr_storage is True: {slice_id: [(time_stamp, pixel_array), (time_stamp, pixel_array)...]}
-        if use_arr_storage is False: {slice_id: {pixel_coordinate: array_of_pixel_values_over_time}}
-    :rtpye: dict
-    """
-    patient_dict = {}
-    for root, dirs, _ in os.walk(structured_directory):
-        for id_num, directory in dirs:
-            if represents_int(directory):
-                patient_dict[id_num] = parse_dcm_data(os.path.join(root, directory), use_arr_storage)
-    return patient_dict
-
-=======
 def parse_flair_data(directory_name):
     """
     Parses all coregistered flair images in directory name.
@@ -186,7 +147,6 @@ def parse_flair_data(directory_name):
             slice_loc = match_flair_slice_loc.search(file).group(1)
             slice_dict[slice_loc] = dcm.pixel_array
     return slice_dict
->>>>>>> 46a4c19023d09fc6a835fe3d3351236698cded5f
 
 def map_pixel_data(pixels, creation_time, slice_data=None, ignore_zero_intensity=True):
     """
