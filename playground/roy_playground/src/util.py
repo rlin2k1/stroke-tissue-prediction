@@ -49,11 +49,12 @@ class Data:
         if predict_col is None:
             self.X = data[:,:]
             self.y = None
-        else :
-            if data.ndim > 1 :
+        else:
+            if data.ndim > 1:
                 self.X = np.delete(data, predict_col, axis=1)
+                # self.y = data[:,predict_col]
                 self.y = data[:,predict_col]
-            else :
+            else:
                 self.X = None
                 self.y = data[:]
         
@@ -76,9 +77,38 @@ class Data:
             self.Xnames = None
             self.yname = None
 
+    def load_test(self, filename, header=0, predict_col=-1):
+        """Load csv file into X array of features and y array of labels."""
+        
+        # determine filename
+        dir = os.path.dirname(__file__)
+        f = os.path.join(dir, '..', 'data', filename)
+
+        self.Xnames = None
+        self.yname = None
+        
+        # load data
+        with open(f, 'r') as fid:
+            data1 = np.loadtxt(fid, delimiter=",", skiprows=header, usecols=(0,1,2))
+            fid.close()
+        with open(f, 'r') as fid:
+            data = np.loadtxt(fid, delimiter=",", skiprows=header)
+
+
+        l = range(0, predict_col + 1)
+        self.X = np.delete(data, l, axis=1)
+        self.y = data1
+        
+
 # helper functions
 def load_model_data(filename, header=0, predict_col=-1):
     """Load csv file into Data class."""
     data = Data()
     data.load(filename, header=header, predict_col=predict_col)
+    return data
+
+def load_model_test(filename, header=0, predict_col=-1):
+    """Load csv file into Data class."""
+    data = Data()
+    data.load_test(filename, header=header, predict_col=predict_col)
     return data
