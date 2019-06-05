@@ -51,7 +51,16 @@ These are installed via the bootstrapping process described in `Getting Started`
 
 #### Utilizing `CSV` Files
 
-1. TODO: fill in
+1. Once the `CSV` files have been generated, you should run `verify-csvs.sh` on them.
+   - To do this, all `CSV`'s you wish to affect must be in a single directory.
+   - Recommended usage is as follows: `./verify-csvs.sh -n {col_count} -c -f col_label,col_label -i {lines_to_ignore} -br -d {directory_with_csvs}`
+      - Essentially, this will combine all patients' `CSV` files into one, normalize column count to `col_count`, add `col_label,col_label` as the first line of the condensed `CSV`, and ignore any intensity rows which contained background values.
+      - For further usage details, run `./verify-csvs.sh -u`.
+2. With the `CSV` files cleaned and condensed, you should run them through the machine learning process of your choice. See the `Utilizing Machine Learning` section for further details.
+
+#### Utilizing Machine Learning
+
+1. TODO: fill this out
 
 ## Cleanup
 
