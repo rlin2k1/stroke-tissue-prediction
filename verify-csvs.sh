@@ -23,6 +23,7 @@ readonly VALID_OPTS="Valid options:\n\
 \t\t2) -c|--condense: condenses the CSVs contained within the directory into one file.
 \t\t3) -f|--firstline <value>: if the condense option is specified, prepend the condensed file with <value> as the first line.
 \t\t4) -i|--ignore <count>: ignore the first count lines from each .cvs if -c is specified.
+\t\t5) -br|--backgroundremove: removes any rows which contain values beneath the background threshold of 30
 \t\t5) -u|--usage: display this usage message.\n\
 \n"
 
@@ -34,6 +35,7 @@ normalize=false
 condense=false
 ignore_lines=false
 first_line_set=false
+remove_background=false
 FOLDER=false
 
 POSITIONAL=()
@@ -56,7 +58,6 @@ case $key in
     ;;
     -c|--condense)
         condense=true
-        CONDENSED=$FOLDER/condensed.csv
         if [ $normalize != true ]; then
             echo "ERROR: cannot specify --condense without specifiying --normalize."
         fi
@@ -100,6 +101,11 @@ case $key in
         shift
         shift
     ;;
+    -br|--backgroundremove)
+        remove_background=true
+        echo "Will remove rows with background pixel values."
+        shift
+    ;;
     *) # unknown option
         echo "ERROR: unknown option specified."
         printf "$VALID_OPTS"
@@ -117,6 +123,7 @@ fi
 
 
 if [ $condense = true ]; then
+    CONDENSED=$FOLDER/condensed.csv
     if [ $first_line_set = true ]; then
         echo "$FIRST_LINE" > $CONDENSED
     else
@@ -130,7 +137,6 @@ fi
 # MAIN
 ##############################################
 
-
 for file in $FOLDER/*.csv; do
     if [ $file != $CONDENSED ]; then
         col_count=$(cat $file | tail -n 1 | sed 's/[^,]//g' | wc -c)
@@ -138,10 +144,18 @@ for file in $FOLDER/*.csv; do
         if [ $normalize = true ]; then
             if [ $condense = true ]; then
                 printf "\tAdding $file to $CONDENSED...\n"
-                if [ $ignore_lines = true ]; then
-                    cat $file | tail -n +$IGNORE_COUNT | cut -d, -f1-$COL_LIM >> $CONDENSED
+                if [ $remove_background = true ]; then
+                    if [ $ignore_lines = true ]; then
+                        grep -vE ",([0-9]|1[0-9]|2[0-9]|30)\.[0-9]*" $file | tail -n +$IGNORE_COUNT | cut -d, -f1-$COL_LIM >> $CONDENSED
+                    else
+                        grep -vE ",([0-9]|1[0-9]|2[0-9]|30)\.[0-9]*" $file | cut -d, -f1-$COL_LIM >> $CONDENSED
+                    fi
                 else
-                    cut -d, -f1-$COL_LIM $file >> $CONDENSED
+                    if [ $ignore_lines = true ]; then
+                        tail -n +$IGNORE_COUNT $file | cut -d, -f1-$COL_LIM >> $CONDENSED
+                    else
+                        cut -d, -f1-$COL_LIM $file >> $CONDENSED
+                    fi
                 fi
                 printf "\tDone!\n"
             else
