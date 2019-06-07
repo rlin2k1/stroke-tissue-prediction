@@ -264,7 +264,7 @@ def main():
 
         y_pred_test = clf.predict(normalized_X_test)
 
-        filename = model + ".csv"
+        filename = model.model_name + ".csv"
         if os.path.exists(filename):
             try:
                 os.remove(filename)
