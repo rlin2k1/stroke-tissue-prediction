@@ -42,15 +42,17 @@ Data for this project comes from a series of MRI scans for eighteen patients who
 
 #### Co-Registering Raw FLAIR MASK `DICOM`s to Perfusion `DICOM`s
 
-If you wish to do Co-registration, please install the latest [SimpleElastix library](https://simpleelastix.github.io/#download).
+If you wish to do co-registration, please install the latest [SimpleElastix library](https://simpleelastix.github.io/#download).
 
-There should already be folder called `Patients` containing the number (an integer) of each Patient. Within each Patient's Number folder, there is a folder called `Perfusion` containing Perfusion `DICOM`s and a folder called `FLAIR`, containing FLAIR `DICOM`s.
+For your data: it should already be arranged in a folder called `Patients`, placed in the root of this repository, such that each patient is assigned an integer-labeled subfolder. Within each Patient's subfolder, there ought to be a folder called `Perfusion` containing Perfusion `DICOM`s and a folder called `FLAIR`, containing FLAIR `DICOM`s.
 
 From within the virtualenv, at the root of the repo, run `python3 src/register_images.py {path_to_flair_perfusion_mappings}`.
 
 The `{path_to_flair_perfusion_mappings}` is a CSV file that contains rows of format:
 
+   ```CSV
    PATIENTNUMBER,FIXEDDICOM,MOVINGDICOM
+   ```
 
 This will create a new directory called `RESULT` in the `src` directory, and store the co-registered `DICOM`s inside with file name: 
 
