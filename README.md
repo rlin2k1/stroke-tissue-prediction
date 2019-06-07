@@ -39,7 +39,15 @@ These are installed via the bootstrapping process described in `Getting Started`
 
 #### Co-Registering Raw FLAIR MASK `DICOM`s to Perfusion `DICOM`s
 If you wish to do Co-Registration, please install the latest SimpleElastix library: https://simpleelastix.github.io/#download
-1. 
+There should already be folder called 'Patients' containing the Number of each Patient. Within each Patient's Number folder, there is a folder called 'Perfusion' containing Perfusion DiComs and a folder called 'FLAIR' containing Flair DiComs.
+
+From within the virtualenv, at the root of the repo, run `python3 src/register_images.py {path_to_flair_perfusion_mappings}`.
+
+The {path_to_flair_perfusion_mappings} is a CSV file that contains:
+PATIENTNUMBER,FIXEDDICOM,MOVINGDICOM
+
+Creates a New Directory called 'RESULT' in the src directory and stores the registered Dicoms inside with file name: 
+   result_DICOMFILENAME_AcquitionNumber_AcquitionTime_SliceLocation.dcm
 
 #### Generating `CSV` Files from Raw `DICOM`s
 
