@@ -4,7 +4,7 @@ coordinate axis of the fixed image.
 
 Image Registration with SimpleITK
 
-USAGE: python2 register_images.py CSVFILE
+USAGE: python2 register_images.py MAPPINGCSV
 Export Function: register_images
 
 Author(s):
@@ -35,20 +35,22 @@ matplotlib.use('tkagg') # MacOS Support for Displaying Images
 # ---------------------------------------------------------------------------- #
 # Image Registration Function
 # ---------------------------------------------------------------------------- #
-def register_images(fixed_image_path, directory_path, moving, number):
+def register_images(fixed_image_path, directory_path, moving_image_path, number):
     """
-    Takes one fixed image and a directory of moving images. Transforms all
-    moving images in the directory to the coordinate plane of the fixed image. 
-    Creates a New Directory called 'RESULT' and stores the registered image 
-    arrays inside with file name: 
-        result_AcquitionNumber_SliceLocation_InstanceCreationTime.txt
+    Takes one fixed image, a directory of moving images, one moving image, and a
+    number. Transforms all moving images in the directory to the coordinate 
+    plane of the fixed image. Creates a New Directory called 'RESULT' and stores
+    the registered Dicoms inside with file name: 
+        result_DICOMFILENAME_AcquitionNumber_AcquitionTime_SliceLocation.dcm
     
     Args:
-        fixed_image_path (string): Path to the Fixed Image
+        fixed_image_path (string): Path to the Fixed Image.
         directory_path (string): Path to the Directory Containing Moving Images.
             Directory pointed to by directory_path must have at least ONE Image 
             File inside. Can Specify Which Image (moving.dcm) to Use as the 
             Image to Make the Transformation Matrix.
+        moving_image_path (string): Path to the Moving Image.
+        number (string): Number of the Patient.
 
     Returns:
         (Void): None.
@@ -58,9 +60,8 @@ def register_images(fixed_image_path, directory_path, moving, number):
     # Load the Inputted Images from Command Line
     # ------------------------------------------------------------------------ #
     fixed = sitk.ReadImage(fixed_image_path)
-    # moving = sitk.ReadImage(os.path.join(directory_path, \
-    #    os.listdir(directory_path)[0]))
-    moving = sitk.ReadImage(os.path.join(directory_path, moving))
+
+    moving = sitk.ReadImage(os.path.join(directory_path, moving_image_path))
 
     # ------------------------------------------------------------------------ #
     # Translate 3-D DCM Images to 2-D Frame. Lose 3rd Dimension
@@ -108,15 +109,7 @@ def register_images(fixed_image_path, directory_path, moving, number):
 
             dcm = pydicom.dcmread(filePath)
 
-            # Acquisition Number Is In Increasing Order
-            # Will Change Instance Creation Time to Acquition Time Once We Have
-            # f = open(dir + "/result_" + str(dcm.AcquisitionNumber) + "_" + \
-            #    str(dcm.SliceLocation) + "_" + str(dcm.AcquisitionTime) + str(dcm.AcquisitionTime) \
-            #    + ".dicom" , "w")
             registeredImage = transformixImageFilter.GetResultImage()
-            #registeredImage = sitk.GetArrayFromImage(registeredImage)
-            # f.write(str(registeredImage.tolist()))
-            # f.close()
 
             castFilter = sitk.CastImageFilter()
             castFilter.SetOutputPixelType(sitk.sitkInt16)
@@ -124,8 +117,6 @@ def register_images(fixed_image_path, directory_path, moving, number):
             imgFiltered = castFilter.Execute(registeredImage)
 
             sitk.WriteImage(imgFiltered, dir + "/result_" + file[:-4] + '_' + str(dcm.AcquisitionNumber) + '_' + str(dcm.AcquisitionTime) + '_' + str(dcm.SliceLocation) + '.dcm')
-            #print(dir + "/result_" + file)
-            #sitk.WriteImage(registeredImage, dir + "/result_" + file)
 
             # ---------------------------------------------------------------- #
             # Show Image Translations
@@ -148,15 +139,14 @@ def main():
     # ------------------------------------------------------------------------ #
     # Constructs Argument Parser for Parsing Arguments
     # ------------------------------------------------------------------------ #
-    if( (len(sys.argv) - 1) != 2):
-        print("Two Arguments Needed.")
-        print("USAGE: python2 register_images.py FIXEDIMAGEPATH DIRECTORYPATH")
+    if( (len(sys.argv) - 1) != 1):
+        print("One Argument Needed.")
+        print("USAGE: python2 register_images.py MAPPINGCSV")
         exit()
     
-    fixed_path = sys.argv[1]
-    directory_path = sys.argv[2]
+    csv_mapping = sys.argv[1]
+    f = open(csv_mapping, 'r')
 
-    f = open('Patient_Coregistration.csv', 'r')
     for line in f:
         line = line.strip('\n')
         line = line.split(',')
@@ -166,26 +156,13 @@ def main():
         fixed_path = "Patients/" + number + "/Perfusion/" + perfusion
         directory_path = "Patients/" + number + "/FLAIR"
         register_images(fixed_path, directory_path, flair, number)
-    # register_images(fixed_path, directory_path)
 
 if __name__ == "__main__":
     main()
 
 # ---------------------------------------------------------------------------- #
-# NOTES:
-# ---------------------------------------------------------------------------- #
-# EVEN THE SIZE AND AXES ARE CORRECT! YES :)
-# STILL CONFUSED WHICH TWO IMAGES TO REGISTER!
-
-# Get Transformation Matrix.
-# Put Into a Text File.
-# Document Everything.
-# One File Per Flair Image.
-
-# ---------------------------------------------------------------------------- #
 # Documentation
 # ---------------------------------------------------------------------------- #
-
 """
 Used SimpleElastix (https://simpleelastix.readthedocs.io/) as a medical image
 registration library for image registration. I had a fixed image as the 'ground
@@ -193,7 +170,4 @@ truth' for the coordinate plane. I made a transformation matrix from the fixed
 image and the moving image and applied this moving image to the other moving 
 images in the directory to get the registered images. I write these image pixel
 values to a text file in a new directory.
-
-Patients/2/Perfusion/IM-0004-0009.dcm
-Patients/2/FLAIR
 """
