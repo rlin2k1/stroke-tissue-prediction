@@ -43,7 +43,7 @@ There should already be folder called 'Patients' containing the Number of each P
 
 From within the virtualenv, at the root of the repo, run `python3 src/register_images.py {path_to_flair_perfusion_mappings}`.
 
-The {path_to_flair_perfusion_mappings} is a CSV file that contains:
+The {path_to_flair_perfusion_mappings} is a CSV file that contains rows of format:
 PATIENTNUMBER,FIXEDDICOM,MOVINGDICOM
 
 Creates a New Directory called 'RESULT' in the src directory and stores the registered Dicoms inside with file name: 
