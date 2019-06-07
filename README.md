@@ -36,7 +36,7 @@ These are installed via the bootstrapping process described in `Getting Started`
 3. Run `deactivate` to close the virtualenv.
 
 ## Data
-Data for this project comes from a series of MRI scans for eighteen patients who had been treated for ischemic stroke at UCLA’s Ronald Reagan Medical Center. Each patient had two sets of MRI images: perfusion, and FLAIR, represented in the international standard DICOM image format, which is essentially a standard image appended with a load of metadata, such as patient name, brain slice location (slice meaning vertical location, relative to the patient’s eyes, moving up or down), and image capture time.The data will not be released as it contains privileged information of patients.
+Data for this project comes from a series of MRI scans for eighteen patients who had been treated for ischemic stroke at UCLA’s Ronald Reagan Medical Center. Each patient had two sets of MRI images: perfusion, and FLAIR, represented in the international standard DICOM image format, which is essentially a standard image appended with a load of metadata, such as patient name, brain slice location (slice meaning vertical location, relative to the patient’s eyes, moving up or down), and image capture time. The data will not be released as it contains privileged information of patients.
 
 ## Usage
 
