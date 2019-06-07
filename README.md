@@ -80,31 +80,41 @@ Creates a New Directory called 'RESULT' in the src directory and stores the regi
 
 #### Utilizing Machine Learning
 
-From within the virtualenv, at the root of the repo run `python3 src/classify_voxels.py {path_to_training_csv} {path_to_predict_csv} {which_model_to_run}`.
-  Current Machine Learning Models Supported: <br>
-   All - Runs training csv through all below models and outputs F1-Score, Accuracy, Precision, and Recall to a Log File: model_analysis.csv<br>
-   {All the Below Options would train on a 100/0 Split on Training, Test on the Predicting CSV, and write the Results to Output:{model_name}.csv}<br>
-   - [BaggingClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingRegressor.html)<br>
-   - [GradientBoostingClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html)<br>
-   - [LogisticRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html)<br>
-   - [MLPClassifier_ActivationIdentity](https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html)<br>
-   - [MLPClassifier_ActivationLogistic](https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html)<br>
-   - [MLPClassifier_TanH](https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html)<br>
-   - [MLPClassifier_Relu](https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html)<br>
-   - [NearestCentroid](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.NearestCentroid.html)<br>
-   - [KNeighborsClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html)<br>
-   - [DecisionTree](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html)<br>
-   - [RandomForest](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html)<br>
-   - [ExtraTreesClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html)<br>
-   - [StochasticGradientDescent_Hinge](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html)<br>
-   - [StochasticGradientDescent_Log](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html)<br>
-   - [StochasticGradientDescent_Perceptron](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html)<br>
-   - [StochasticGradientDescent_ModifiedHuber](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html)<br>
-   - [StochasticGradientDescent_SquaredHinge](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html)<br>
-   - [SupportVectorMachine_RBFKernel](https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html)<br>
-   - [SupportVectorMachine_SigmoidKernel](https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html)<br>
+From within the virtualenv, at the root of the repo, run:
+
+   ```bash
+   python3 src/classify_voxels.py {path_to_training_csv} {path_to_input_csv} {which_model_to_run}
+   ```
+
+This will always output to a single CSV file, `model_analysis.csv`. 
+
+##### Current Machine Learning Models Supported
+
+   - `All` - Put this in place of `{which_model_to_run}` to use all the models list below, and output their individual F1-Score, Accuracy, Precision, and Recal.
+   - Use any of the below options to train on a 100/0 Split of Training, Test, in place of the `{which_model_to_run}` option.
+
+      - [BaggingClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingRegressor.html)
+      - [GradientBoostingClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html)
+      - [LogisticRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html)
+      - [MLPClassifier_ActivationIdentity](https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html)
+      - [MLPClassifier_ActivationLogistic](https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html)
+      - [MLPClassifier_TanH](https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html)
+      - [MLPClassifier_Relu](https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html)
+      - [NearestCentroid](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.NearestCentroid.html)
+      - [KNeighborsClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html)
+      - [DecisionTree](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html)
+      - [RandomForest](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html)
+      - [ExtraTreesClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html)
+      - [StochasticGradientDescent_Hinge](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html)
+      - [StochasticGradientDescent_Log](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html)
+      - [StochasticGradientDescent_Perceptron](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html)
+      - [StochasticGradientDescent_ModifiedHuber](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html)
+      - [StochasticGradientDescent_SquaredHinge](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html)
+      - [SupportVectorMachine_RBFKernel](https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html)
+      - [SupportVectorMachine_SigmoidKernel](https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html)
    
-    For a more verbose description of these options and their utilization, run `python3 src/classify_voxels.py -h`.
+For a more verbose description of these options and their utilization, run `python3 src/classify_voxels.py -h`.
+
 ## Cleanup
 
 1. Run `./bootstrap.sh -c` to blow away the virtualenv, and clean its dependent files.
