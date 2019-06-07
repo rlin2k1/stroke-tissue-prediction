@@ -72,9 +72,9 @@ If you wish to do Co-Registration, please install the latest SimpleElastix libra
 
 #### Utilizing Machine Learning
 
-1. From within the virtualenv, at the root of the repo run `python3 src/classify_voxels.py {path_to_training_csv} {path_to_predict_csv} {which_model_to_run}`.
+From within the virtualenv, at the root of the repo run `python3 src/classify_voxels.py {path_to_training_csv} {path_to_predict_csv} {which_model_to_run}`.
   Current Machine Learning Models Supported: <br>
-   All:Runs training csv through all below models and outputs F1-Score, Accuracy, Precision, and Recall to a Log File: model_analysis.csv<br>
+   All - Runs training csv through all below models and outputs F1-Score, Accuracy, Precision, and Recall to a Log File: model_analysis.csv<br>
    {All the Below Options would train on a 100/0 Split on Training, Test on the Predicting CSV, and write the Results to Output:{model_name}.csv}<br>
    - [BaggingClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingRegressor.html)<br>
    - [GradientBoostingClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html)<br>
