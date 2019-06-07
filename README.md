@@ -86,12 +86,10 @@ From within the virtualenv, at the root of the repo, run:
    python3 src/classify_voxels.py {path_to_training_csv} {path_to_input_csv} {which_model_to_run}
    ```
 
-This will always output to a single CSV file, `model_analysis.csv`. 
-
 ##### Current Machine Learning Models Supported
 
-   - `All` - Put this in place of `{which_model_to_run}` to use all the models list below, and output their individual F1-Score, Accuracy, Precision, and Recal.
-   - Use any of the below options to train on a 100/0 Split of Training, Test, in place of the `{which_model_to_run}` option.
+   - `All` - Put this in place of `{which_model_to_run}` to use all the models list below, and output their individual F1-Score, Accuracy, Precision, and Recall. This will output to a single `CSV`, `model_analysis.csv`. 
+   - Use any of the below options to train on a 100/0 Split of Training, Test, in place of the `{which_model_to_run}` option. This will output to a single `CSV`, named `{which_model_to_run}.csv`.
 
       - [BaggingClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingRegressor.html)
       - [GradientBoostingClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html)
